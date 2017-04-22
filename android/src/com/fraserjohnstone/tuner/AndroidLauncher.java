@@ -101,7 +101,6 @@ public class AndroidLauncher extends AndroidApplication {
                     splashScreen.setScreenChangeAllowed(true);
                 }else if(grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_DENIED){
-                    //TODO Exit application
                 }
             }
         }
