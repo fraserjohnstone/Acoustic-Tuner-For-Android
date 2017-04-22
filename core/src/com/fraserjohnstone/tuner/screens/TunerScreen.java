@@ -445,11 +445,11 @@ public class TunerScreen implements Screen{
                     mSharpOrFlatSymbol.setAlpha(0);
                 }
             }else if(mSharpOrFlat.equals("sharp")){
-                mHowSharp.setScale((float) (basicScaleValue/100));
+                mHowSharp.setScale((float) basicScaleValue);
                 mHowFlat.setScale(0);
                 //display flat symbol if mOffsetInCents is >= 1
                 if(mOffsetInCents >= 1){
-                    mSharpOrFlatSymbol.setScale((float) ((basicScaleValue/100)*0.5)+minScale);
+                    mSharpOrFlatSymbol.setScale((float) (basicScaleValue*0.5)+minScale);
                     mSharpOrFlatSymbol.setAlpha(1);
                     mSharpOrFlatSymbol.setTexture((Texture) mTuner.mAssetManager.get("images/sharp_symbol.png"));
                     //change colour of the centre image if the cents are within a certain limit
