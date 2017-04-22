@@ -4,7 +4,7 @@ package com.fraserjohnstone.tuner.assets;
  * This class holds strings of the locations of any assets used throughout the application
  *
  * @version 1.01 - 22.04.2017
- * @author  Fraser Johnstone
+ * @author Fraser Johnstone
  */
 public class LoadableAssets {
 	public static String[] assetArray = new String[]{

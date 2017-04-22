@@ -5,7 +5,7 @@ package com.fraserjohnstone.tuner.utils;
  * in this case to request runtime user permissions.
  *
  * @version 1.01 - 22.04.2017
- * @author  Fraser Johnstone
+ * @author Fraser Johnstone
  */
 
 import com.fraserjohnstone.tuner.screens.SplashScreen;
