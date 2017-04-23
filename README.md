@@ -31,6 +31,7 @@ variable 'acceptableInTuneLimit' in the method 'TunerScreen.updateHowFlatOrSharp
 
 Simply download this repository and run in Android Studio to install on an Android device. Upon
 running the application for the first time you will be asked to provide audio recording permissions.
-This is essential as nothing will work otherwise and you will not be able to get past the splash screen.
+This is essential as the tuner will not work otherwise and you will not be able to get past the splash 
+screen.
 
 The device must be equipped with at least SDK 23. 
