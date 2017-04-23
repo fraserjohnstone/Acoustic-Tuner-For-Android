@@ -11,7 +11,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.fraserjohnstone.tuner.utils.ActionResolver;
 
 /**
- * This is the main {@link Game} instance and entry point for the application. It will create
+ * This is the main {@link Game} class and entry point for the application. It will create
  * and initialise the {@link SpriteBatch} and {@link AssetManager} used throughout, and then set
  * the screen to an instance of {@link com.fraserjohnstone.tuner.screens.SplashScreen} to be displayed
  * while the application assets load into {@link #mAssetManager}.
@@ -21,20 +21,16 @@ import com.fraserjohnstone.tuner.utils.ActionResolver;
  */
 public class Tuner extends Game {
 
-    public int mScreenHeightPixels;
-    public int mScreenWidthPixels;
-
-    public SpriteBatch mBatch;
-    public AssetManager mAssetManager;
-
-    public ActionResolver mActionResolver;
+    private int mScreenHeightPixels;
+    private int mScreenWidthPixels;
+    private SpriteBatch mBatch;
+    private AssetManager mAssetManager;
+    private ActionResolver mActionResolver;
 
     /**
-     * Class constructor.
-     * <p>
-     * Sets up all the objects required throughout the Application and displays the splash screen.
+     * Class constructor
      */
-    public Tuner(ActionResolver _actionResolver) {
+    Tuner(ActionResolver _actionResolver) {
         mActionResolver = _actionResolver;
     }
 
@@ -48,13 +44,10 @@ public class Tuner extends Game {
         mScreenHeightPixels = Gdx.graphics.getHeight();
         mScreenWidthPixels = Gdx.graphics.getWidth();
 
-        //load assets
         loadAssets();
 
-        //create SpriteBatch
         mBatch = new SpriteBatch();
 
-        //set screen to splash screen
         setScreen(new com.fraserjohnstone.tuner.screens.SplashScreen(this));
     }
 
@@ -68,7 +61,6 @@ public class Tuner extends Game {
         param.minFilter = TextureFilter.MipMapLinearNearest;
         param.magFilter = TextureFilter.Nearest;
 
-        //load all images into the AssetManager
         mAssetManager = new AssetManager();
 
         //images
@@ -82,13 +74,8 @@ public class Tuner extends Game {
         }
     }
 
-    @Override
-    public void render() {
-        super.render();
-    }
-
     /**
-     * This method safely disposes of any disposable objects (see {@link com.badlogic.gdx.utils.Disposable})
+     * Safely disposes of any disposable objects (see {@link com.badlogic.gdx.utils.Disposable})
      * created in this class.
      */
     @Override
@@ -97,5 +84,29 @@ public class Tuner extends Game {
         if (mAssetManager != null) {
             mAssetManager.dispose();
         }
+    }
+
+    /**
+     * Getters and Setters
+     */
+
+    public int getScreenHeightPix(){
+        return mScreenHeightPixels;
+    }
+
+    public int getScreenWidthPix(){
+        return mScreenWidthPixels;
+    }
+
+    public SpriteBatch getSpriteBatch(){
+        return mBatch;
+    }
+
+    public ActionResolver getActionResolver(){
+        return mActionResolver;
+    }
+
+    public AssetManager getAssetManager(){
+        return mAssetManager;
     }
 }

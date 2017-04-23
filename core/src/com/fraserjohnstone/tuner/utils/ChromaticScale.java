@@ -47,4 +47,4 @@ public class ChromaticScale {
     public Note[] getNoteArray() {
         return noteArray;
     }
-};
+}

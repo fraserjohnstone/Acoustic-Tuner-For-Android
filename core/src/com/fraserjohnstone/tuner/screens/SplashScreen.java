@@ -11,11 +11,13 @@ import com.badlogic.gdx.utils.Scaling;
 import com.fraserjohnstone.tuner.Tuner;
 
 /**
- * This screen is displayed whilst whilst the {@link Tuner#mAssetManager} is loading.
+ * This screen is displayed whilst the {@link Tuner#mAssetManager} is loading and the user is
+ * prompted to provide permission to record audio.
  * <p>
  * A {@link TunerScreen} instance is set as the current screen once the {@link Tuner#mAssetManager}
  * has finished loading and the user has granted the application appropriate runtime permissions.
- * The permissions will be requested in the resume() method.
+ * The permissions will be requested in the resume() method and the member variable
+ * {@link #mScreenChangeAllowed} will only be true once the user has granted permission.
  *
  * @author Fraser Johnstone
  * @version 1.01 - 22.04.2017
@@ -23,38 +25,35 @@ import com.fraserjohnstone.tuner.Tuner;
 public class SplashScreen implements Screen {
 
     //reference the main Tuner class instance to allow us access to sprite batch, asset manager etc.
-    private Tuner tuner;
+    private Tuner mTuner;
 
     //flag to determine if the screen should be changed. Will be set to true once the user has given
     //any requested runtime permissions.
-    private boolean screenChangeAllowed = false;
+    private boolean mScreenChangeAllowed = false;
 
     //UI
     //stage
-    private Stage stage;
+    private Stage mStage;
 
     //bg
-    private Texture bgTexture;
-    private Image bgImage;
+    private Texture mBgTexture;
+    private Image mBgImage;
 
     //spinner
-    private Texture spinnerTexture;
-    private Image spinnerImage;
+    private Texture mSpinnerTexture;
+    private Image mSpinnerImage;
 
     /**
      * Class constructor.
+     * <p>
+     * Creates all of the elements for the user interface and adds them to a stage.
      *
-     * @param _tuner {@link Tuner}. Gives this screen access to the main {@link com.badlogic.gdx.Game}
+     * @param _tuner {@link Tuner}. Gives this class access to the main {@link com.badlogic.gdx.Game}
      *               class.
      */
     public SplashScreen(Tuner _tuner) {
         //reference the main Tuner class
-        tuner = _tuner;
-
-        //create the stage
-        stage = new Stage();
-
-        //create the User interface
+        mTuner = _tuner;
         addUiElements();
     }
 
@@ -62,32 +61,39 @@ public class SplashScreen implements Screen {
      * Creates the user interface objects and adds them to the stage.
      */
     private void addUiElements() {
+        //create the stage
+        mStage = new Stage();
+
         //create the bg
-        bgTexture = new Texture(Gdx.files.internal("images/splash/bg.png"), true);
-        bgTexture.setFilter(TextureFilter.MipMapLinearLinear, TextureFilter.Linear);
-        bgImage = new Image(bgTexture);
-        bgImage.setScaling(Scaling.stretch);
-        bgImage.setPosition(0, 0);
-        bgImage.setSize(tuner.mScreenWidthPixels, tuner.mScreenHeightPixels);
+        mBgTexture = new Texture(Gdx.files.internal("images/splash/bg.png"), true);
+        mBgTexture.setFilter(TextureFilter.MipMapLinearLinear, TextureFilter.Linear);
+        mBgImage = new Image(mBgTexture);
+        mBgImage.setScaling(Scaling.stretch);
+        mBgImage.setPosition(0, 0);
+        mBgImage.setSize(mTuner.getScreenWidthPix(), mTuner.getScreenHeightPix());
 
         //create the loader icons
-        spinnerTexture = new Texture(Gdx.files.internal("images/splash/spinner.png"), true);
-        spinnerTexture.setFilter(TextureFilter.MipMapLinearLinear, TextureFilter.Linear);
+        mSpinnerTexture = new Texture(Gdx.files.internal("images/splash/spinner.png"), true);
+        mSpinnerTexture.setFilter(TextureFilter.MipMapLinearLinear, TextureFilter.Linear);
 
-        spinnerImage = new Image(spinnerTexture);
-        spinnerImage.setSize(tuner.mScreenWidthPixels * 0.2f, tuner.mScreenWidthPixels * 0.2f);
-        spinnerImage.setPosition(tuner.mScreenWidthPixels * 0.5f - spinnerImage.getWidth() * 0.5f, tuner.mScreenHeightPixels * 0.5f - spinnerImage.getHeight() * 0.5f);
-        spinnerImage.getColor().a = 0.75f;
-        spinnerImage.setOrigin(spinnerImage.getWidth() * 0.5f, spinnerImage.getHeight() * 0.5f);
+        mSpinnerImage = new Image(mSpinnerTexture);
+        mSpinnerImage.setSize(mTuner.getScreenWidthPix() * 0.2f, mTuner.getScreenWidthPix() * 0.2f);
+        mSpinnerImage.setPosition(mTuner.getScreenWidthPix() * 0.5f - mSpinnerImage.getWidth() * 0.5f,
+                mTuner.getScreenHeightPix() * 0.5f - mSpinnerImage.getHeight() * 0.5f);
+        mSpinnerImage.getColor().a = 0.75f;
+        mSpinnerImage.setOrigin(mSpinnerImage.getWidth() * 0.5f, mSpinnerImage.getHeight() * 0.5f);
 
         //add ui elements to the stage
-        stage.addActor(bgImage);
-        stage.addActor(spinnerImage);
+        mStage.addActor(mBgImage);
+        mStage.addActor(mSpinnerImage);
     }
 
     /**
      * Draws the elements of the UI that have been added to the stage. The rotation of the spinner will
      * be set based on the loading progress of the {@link Tuner#mAssetManager}.
+     * <p>
+     * {@link #goToTunerScreen()} will only be called if the user has given permission to this
+     * application to record audio, and the asset manager has finished loading.
      *
      * @param _delta float. The time taken to render the previous frame.
      */
@@ -99,50 +105,46 @@ public class SplashScreen implements Screen {
 
         //check if the AssetManager instance has loaded and that the record audio permission
         //has been granted
-        if (screenChangeAllowed && tuner.mAssetManager.update()) {
+        if (mScreenChangeAllowed && mTuner.getAssetManager().update()) {
             goToTunerScreen();
         }
 
         //update the spinner rotation
-        spinnerImage.setRotation((360 / 100) * tuner.mAssetManager.getProgress());
+        mSpinnerImage.setRotation((360 / 100) * mTuner.getAssetManager().getProgress());
 
         //draw the stage
-        stage.draw();
+        mStage.draw();
     }
 
     /**
      * Changes the screen to an instance of {@link TunerScreen}
      */
     private void goToTunerScreen() {
-        screenChangeAllowed = false;
-        tuner.setScreen(new TunerScreen(tuner));
+        mScreenChangeAllowed = false;
+        mTuner.setScreen(new TunerScreen(mTuner));
     }
 
     @Override
-    public void show() {
+    public void resume() {
+        //request the record audio permission
+        mTuner.getActionResolver().requestPermissions(this);
     }
+
+    @Override
+    public void show(){}
+
+    @Override
+    public void hide(){}
+
+    @Override
+    public void pause(){}
 
     /**
      * @param _height int. The new width of the screen.
      * @param _width  int. The new height of the screen.
      */
     @Override
-    public void resize(int _width, int _height) {
-    }
-
-    @Override
-    public void pause() {
-    }
-
-    @Override
-    public void resume() {
-        //request the record audio permission
-        tuner.mActionResolver.requestPermissions(this);
-    }
-
-    @Override
-    public void hide() {
-    }
+    public void resize(int _width, int _height) {}
 
     /**
      * Safely disposes of any disposable objects (see {@link com.badlogic.gdx.utils.Disposable})
@@ -150,12 +152,18 @@ public class SplashScreen implements Screen {
      */
     @Override
     public void dispose() {
-        bgTexture.dispose();
-        spinnerTexture.dispose();
-        stage.dispose();
+        mBgTexture.dispose();
+        mSpinnerTexture.dispose();
+        mStage.dispose();
     }
 
+    /**
+     * Getters and Setters
+     *
+     * @param _screenChangeAllowed
+     */
+
     public void setScreenChangeAllowed(boolean _screenChangeAllowed) {
-        screenChangeAllowed = _screenChangeAllowed;
+        mScreenChangeAllowed = _screenChangeAllowed;
     }
 }

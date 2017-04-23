@@ -8,13 +8,13 @@ import java.util.Random;
  * @author Fraser Johnstone
  * @version 1.01 - 22.04.2017
  */
-public class RandomNum {
+class RandomNum {
 
     /**
      * @param _min int
      * @param _max int
      */
-    public static int randInt(int _min, int _max) {
+    private static int randInt(int _min, int _max) {
         Random rand = new Random();
         int randomNum = rand.nextInt((_max - _min) + 1) + _min;
         return randomNum;
@@ -59,8 +59,7 @@ public class RandomNum {
 
         //get either a 1 or a 2 to decide if its going to be negative
         int x = RandomNum.randInt(1, 2);
-        if (x == 1) {
-        } else {
+        if (x != 1) {
             randomNum = randomNum * (-1);
         }
 

@@ -25,7 +25,7 @@ public class Note {
      * @param octave_8
      * @param stringRepresentation
      */
-    public Note(double octave_0,
+    Note(double octave_0,
                 double octave_1,
                 double octave_2,
                 double octave_3,

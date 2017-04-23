@@ -24,18 +24,21 @@ import be.tarsos.dsp.pitch.PitchProcessor;
 import be.tarsos.dsp.pitch.PitchProcessor.PitchEstimationAlgorithm;
 
 /**
- * This class is the main {@link Screen} where the Tuner is displayed.
+ * This class is the main {@link Screen} where the Tuner is displayed. The tuner algorithm will
+ * run in its own thread and if there is sufficient sound detected, this class will attempt to
+ * process the frequency of the sound detected and the user interface will be updated accordingly.
  *
  * @author Fraser Johnstone
  * @version 1.01 - 22.04.2017
  */
 public class TunerScreen implements Screen {
 
-    //loop limiter. This value restricts the updating of certain values through the life of the application
+    //loop limiter. This value restricts the updating of certain values through the life of the
+    //application
     private int mLoopCount = 0;
     private int mLoopSize = 8;
 
-    //Tuner settings - further settings that do not require member score are defined in initTuner()
+    //Tuner settings - further settings that do not require member scope are defined in initTuner()
 
     //chops up sound stream and feeds data to pitch
     private AudioDispatcher mAudioDispatcher;
@@ -87,7 +90,8 @@ public class TunerScreen implements Screen {
     private Sprite mHowFlat;
     private Sprite mSharpOrFlatSymbol;
 
-    //update allowed flag - nothing in the application will update if this is false
+    //update allowed flag - nothing in the application will update if this is false. will be set to
+    //true once the UI has been created.
     private boolean mUpdateAllowed = false;
 
     //note definitions
@@ -102,19 +106,18 @@ public class TunerScreen implements Screen {
      * @param _tuner {@link Tuner}. Gives this Screen access to {@link Tuner} instance
      *               which extends {@link com.badlogic.gdx.Game}.
      */
-    public TunerScreen(Tuner _tuner) {
+    TunerScreen(Tuner _tuner) {
         mTuner = _tuner;
     }
 
+    /**
+     * sets the tuner running in its own thread in {@link #initTuner()}, creates note definitions
+     * and creates the user interface.
+     */
     @Override
     public void show() {
-        //prepare the Tuner to start
         initTuner();
-
-        //get the frequencies of all octaves of all notes
         mChromaticScale = new ChromaticScale();
-
-        //create and add ui elements
         addUiElements();
     }
 
@@ -131,6 +134,9 @@ public class TunerScreen implements Screen {
     }
 
     /**
+     * If mUpdateAllowed flag is true then the Hertz value returned from the tuner algorithm will be
+     * processed, and the UI will be updated accordingly. We also increment the value of mLoopCount.
+     *
      * @param _delta float. The time taken to render the previous frame.
      */
     private void update(float _delta) {
@@ -146,7 +152,7 @@ public class TunerScreen implements Screen {
             String currentHertzTwoDecimalPlaces = twoDecPlacesFormat.format(mCurrentHertz);
             mHertzReadout = String.valueOf(currentHertzTwoDecimalPlaces);
 
-            //update sprites
+            //update Sprites
             //note wheel
             updateNoteWheelRotation();
             mNoteWheel.setRotation((float) mNoteWheelRotation);
@@ -154,17 +160,18 @@ public class TunerScreen implements Screen {
             //update the how flat or sharp visualisation
             updateHowFlatOrSharp();
 
+            //increment mLoopCount
             if (mLoopCount < mLoopSize) {
                 mLoopCount++;
             } else {
                 mLoopCount = 0;
             }
         }
-
     }
 
     /**
-     * Draws the user interface elements to the screen. This method is called after update(float).
+     * If mUpdateAllowed flag is true this method draws the user interface elements to the screen.
+     * This method is called after update().
      *
      * @param _delta float. The time taken to render the previous frame.
      */
@@ -175,29 +182,29 @@ public class TunerScreen implements Screen {
 
         //start drawing
         if (mUpdateAllowed) {
-            mTuner.mBatch.begin();
+            mTuner.getSpriteBatch().begin();
 
             //bg
             for (int i = 0; i < mBgLineArray.size(); i++) {
-                mBgLineArray.get(i).draw(mTuner.mBatch);
+                mBgLineArray.get(i).draw(mTuner.getSpriteBatch());
             }
 
             //note wheel
-            mNoteWheel.draw(mTuner.mBatch);
-            mHertzReadoutBg.draw(mTuner.mBatch);
+            mNoteWheel.draw(mTuner.getSpriteBatch());
+            mHertzReadoutBg.draw(mTuner.getSpriteBatch());
 
             //how sharp or flat
-            mHowSharpOrFlatCenter.draw(mTuner.mBatch);
-            mHowSharp.draw(mTuner.mBatch);
-            mHowFlat.draw(mTuner.mBatch);
-            mSharpOrFlatSymbol.draw(mTuner.mBatch);
+            mHowSharpOrFlatCenter.draw(mTuner.getSpriteBatch());
+            mHowSharp.draw(mTuner.getSpriteBatch());
+            mHowFlat.draw(mTuner.getSpriteBatch());
+            mSharpOrFlatSymbol.draw(mTuner.getSpriteBatch());
 
             //any text (drawn after everything else with the exception of the menu)
             //hertz text
             mCandaraWhiteFont.getData().setScale(0.75f);
             glyphLayout.setText(mCandaraWhiteFont, mHertzReadout);
             mCandaraWhiteFont.draw(
-                    mTuner.mBatch,
+                    mTuner.getSpriteBatch(),
                     mHertzReadout,
                     mHertzReadoutXPos - (glyphLayout.width / 2),
                     mHertzReadoutYPos);
@@ -206,17 +213,19 @@ public class TunerScreen implements Screen {
             mCandaraBlackFont.getData().setScale(2f);
             glyphLayout.setText(mCandaraBlackFont, mHowSharpOrFlatText);
             mCandaraBlackFont.draw(
-                    mTuner.mBatch,
+                    mTuner.getSpriteBatch(),
                     mHowSharpOrFlatText,
                     mHowSharpOrFlatTextXPos - (glyphLayout.width / 2),
                     mHowSharpOrFlatTextYPos);
 
-            mTuner.mBatch.end();
+            mTuner.getSpriteBatch().end();
         }
     }
 
     /**
-     * Initiates the Tuner and starts it in a new thread
+     * Initiates the Tuner and starts it in a new thread. This method utilises the TarsosDSP
+     * library and uses the Fast Fourier Transform included to detect the most prominent pitch of
+     * any detected sound.
      */
     private void initTuner() {
         if (mAudioDispatcher == null) {
@@ -261,51 +270,51 @@ public class TunerScreen implements Screen {
     }
 
     /**
-     * Creates all of the UI elements
+     * Creates all of the UI elements and then sets mUpdateAllowed flag to true so that the UI can
+     * be drawn to the screen.
      */
     private void addUiElements() {
         //initialise fonts
-        mCandaraBlackFont = mTuner.mAssetManager.get("ui/fonts/candara_black.fnt");
-        mCandaraWhiteFont = mTuner.mAssetManager.get("ui/fonts/candara_white.fnt");
+        mCandaraBlackFont = mTuner.getAssetManager().get("ui/fonts/candara_black.fnt");
+        mCandaraWhiteFont = mTuner.getAssetManager().get("ui/fonts/candara_white.fnt");
 
         //background lines
-        for (int i = 0; i < mTuner.mScreenWidthPixels / mNumberOfBgLines; i++) {
-            mBgLine = new Sprite((Texture) mTuner.mAssetManager.get("images/bg/white_pixel.png"));
+        for (int i = 0; i < mTuner.getScreenWidthPix() / mNumberOfBgLines; i++) {
+            mBgLine = new Sprite((Texture) mTuner.getAssetManager().get("images/bg/white_pixel.png"));
             mBgLineArray.add(mBgLine);
-            mBgLine.setSize(1, mTuner.mScreenHeightPixels);
+            mBgLine.setSize(1, mTuner.getScreenHeightPix());
             mBgLine.setAlpha(0.15f);
             mBgLine.setPosition((i * mNumberOfBgLines) + (mNumberOfBgLines / 2), 0);
         }
 
         //note wheel
-        mNoteWheel = new Sprite((Texture) mTuner.mAssetManager.get("images/note_wheel_sharps.png"));
-        mNoteWheel.setSize(mTuner.mScreenWidthPixels + (mTuner.mScreenWidthPixels * 0.4f),
-                mTuner.mScreenWidthPixels + (mTuner.mScreenWidthPixels * 0.4f));
+        mNoteWheel = new Sprite((Texture) mTuner.getAssetManager().get("images/note_wheel_sharps.png"));
+        mNoteWheel.setSize(mTuner.getScreenWidthPix() + (mTuner.getScreenWidthPix() * 0.4f),
+                mTuner.getScreenWidthPix() + (mTuner.getScreenWidthPix() * 0.4f));
         mNoteWheel.setOriginCenter();
-        mNoteWheel.setPosition((mTuner.mScreenWidthPixels / 2) - (mNoteWheel.getWidth() / 2),
-                -(mTuner.mScreenHeightPixels) * .5f);
+        mNoteWheel.setPosition((mTuner.getScreenWidthPix() / 2) - (mNoteWheel.getWidth() / 2),
+                -(mTuner.getScreenHeightPix()) * .5f);
 
         //hertz readout (positioned relative to the note wheel)
         //bg
-        mHertzReadoutBg = new Sprite((Texture) mTuner.mAssetManager.get("images/hertz_readout_bg.png"));
-        mHertzReadoutBg.setSize(mTuner.mScreenWidthPixels * 0.5f, mTuner.mScreenWidthPixels * 0.5f);
-        mHertzReadoutBg.setPosition(mTuner.mScreenWidthPixels / 2 - (mHertzReadoutBg.getWidth() / 2),
+        mHertzReadoutBg = new Sprite((Texture) mTuner.getAssetManager().get("images/hertz_readout_bg.png"));
+        mHertzReadoutBg.setSize(mTuner.getScreenWidthPix() * 0.5f, mTuner.getScreenWidthPix() * 0.5f);
+        mHertzReadoutBg.setPosition(mTuner.getScreenWidthPix() / 2 - (mHertzReadoutBg.getWidth() / 2),
                 mNoteWheel.getY() + mNoteWheel.getHeight() * 0.55f);
         //text
-        //hertz readout position
-        mHertzReadoutXPos = mTuner.mScreenWidthPixels / 2;
+        mHertzReadoutXPos = mTuner.getScreenWidthPix() / 2;
         mHertzReadoutYPos = mHertzReadoutBg.getY() + (mHertzReadoutBg.getHeight() * .52f);
 
         //How sharp or flat indication
         //center image
-        mHowSharpOrFlatCenter = new Sprite((Texture) mTuner.mAssetManager.get("images/cents_sharp_or_flat_center.png"));
-        mHowSharpOrFlatCenter.setSize(mTuner.mScreenWidthPixels * 0.35f, mTuner.mScreenWidthPixels * 0.35f);
-        mHowSharpOrFlatCenter.setPosition((mTuner.mScreenWidthPixels / 2) - (mHowSharpOrFlatCenter.getWidth() / 2),
-                (mTuner.mScreenHeightPixels * .785f) - (mHowSharpOrFlatCenter.getHeight() / 2));
+        mHowSharpOrFlatCenter = new Sprite((Texture) mTuner.getAssetManager().get("images/cents_sharp_or_flat_center.png"));
+        mHowSharpOrFlatCenter.setSize(mTuner.getScreenWidthPix() * 0.35f, mTuner.getScreenWidthPix() * 0.35f);
+        mHowSharpOrFlatCenter.setPosition((mTuner.getScreenWidthPix() / 2) - (mHowSharpOrFlatCenter.getWidth() / 2),
+                (mTuner.getScreenHeightPix() * .785f) - (mHowSharpOrFlatCenter.getHeight() / 2));
 
         //how far flat
-        mHowFlat = new Sprite((Texture) mTuner.mAssetManager.get("images/how_flat_cents.png"));
-        float howFlatWidth = (mTuner.mScreenWidthPixels / 2) - (mHowSharpOrFlatCenter.getWidth() / 2);
+        mHowFlat = new Sprite((Texture) mTuner.getAssetManager().get("images/how_flat_cents.png"));
+        float howFlatWidth = (mTuner.getScreenWidthPix() / 2) - (mHowSharpOrFlatCenter.getWidth() / 2);
         mHowFlat.setSize(howFlatWidth, howFlatWidth / 4);
         mHowFlat.setOrigin(mHowFlat.getWidth(), mHowFlat.getHeight() / 2);
         mHowFlat.setPosition(0, mHowSharpOrFlatCenter.getY() + ((mHowSharpOrFlatCenter.getHeight() / 2)
@@ -314,24 +323,23 @@ public class TunerScreen implements Screen {
         mHowFlat.setScale(0f);
 
         //how far sharp
-        mHowSharp = new Sprite((Texture) mTuner.mAssetManager.get("images/how_sharp_cents.png"));
-        float howSharpWidth = (mTuner.mScreenWidthPixels / 2) - (mHowSharpOrFlatCenter.getWidth() / 2);
+        mHowSharp = new Sprite((Texture) mTuner.getAssetManager().get("images/how_sharp_cents.png"));
+        float howSharpWidth = (mTuner.getScreenWidthPix() / 2) - (mHowSharpOrFlatCenter.getWidth() / 2);
         mHowSharp.setSize(howSharpWidth, howSharpWidth / 4);
         mHowSharp.setOrigin(0, mHowSharp.getHeight() / 2);
-        mHowSharp.setPosition(mTuner.mScreenWidthPixels / 2 + (mHowSharpOrFlatCenter.getWidth() / 2),
+        mHowSharp.setPosition(mTuner.getScreenWidthPix() / 2 + (mHowSharpOrFlatCenter.getWidth() / 2),
                 mHowSharpOrFlatCenter.getY() + ((mHowSharpOrFlatCenter.getHeight() / 2) - (mHowSharp.getHeight() / 2)));
         mHowSharp.setAlpha(.5f);
         mHowSharp.setScale(0f);
 
-        //symbol
-
-        mSharpOrFlatSymbol = new Sprite((Texture) mTuner.mAssetManager.get("images/flat_symbol.png"));
-        mSharpOrFlatSymbol.setSize(mTuner.mScreenWidthPixels * .23f, mTuner.mScreenWidthPixels * .23f);
+        //sharp or flat symbol
+        mSharpOrFlatSymbol = new Sprite((Texture) mTuner.getAssetManager().get("images/flat_symbol.png"));
+        mSharpOrFlatSymbol.setSize(mTuner.getScreenWidthPix() * .23f, mTuner.getScreenWidthPix() * .23f);
         mSharpOrFlatSymbol.setOriginCenter();
-        mSharpOrFlatSymbol.setPosition(mTuner.mScreenWidthPixels / 2 - (mSharpOrFlatSymbol.getWidth() / 2),
-                (mTuner.mScreenHeightPixels * 0.5f) - (mSharpOrFlatSymbol.getHeight() * 0.55f));
+        mSharpOrFlatSymbol.setPosition(mTuner.getScreenWidthPix() / 2 - (mSharpOrFlatSymbol.getWidth() / 2),
+                (mTuner.getScreenHeightPix() * 0.5f) - (mSharpOrFlatSymbol.getHeight() * 0.55f));
         //text
-        mHowSharpOrFlatTextXPos = mTuner.mScreenWidthPixels / 2;
+        mHowSharpOrFlatTextXPos = mTuner.getScreenWidthPix() / 2;
         mHowSharpOrFlatTextYPos = mHowSharpOrFlatCenter.getY() + (mHowSharpOrFlatCenter.getHeight() * 0.69f);
 
         //allow updates now that all of the ui is created
@@ -341,7 +349,7 @@ public class TunerScreen implements Screen {
     /**
      * Processes the current pitch being detected by the Tuner.
      * <p>
-     * This method calculates the closest pitch to the observed sound.
+     * This method calculates the closest musical note to the detected sound.
      *
      * @param _htz double. The pitch detected by the device microphone in hertz
      */
@@ -445,14 +453,18 @@ public class TunerScreen implements Screen {
     private void updateHowFlatOrSharp() {
         //only if the Tuner has detected audio
         if (mAudioDetected) {
-            int acceptableInTuneLimit = 5;                     //lower values mean the Tuner is more fussy
-            double basicScaleValue = (mOffsetInCents * 0.02f);    //value chosen by trial and error to
-            //achieve an appropriate scaling of
-            //ui elements
-            float minScale = 0.5f;                  //the smallest the scale of mSharpOrFlatSymbol
-            // can be
+            //lower values mean the Tuner is more fussy
+            int acceptableInTuneLimit = 5;
+
+            //value chosen by trial and error to achieve an appropriate scaling of ui elements
+            double basicScaleValue = (mOffsetInCents * 0.02f);
+
+            //the smallest the scale of mSharpOrFlatSymbol can be
+            float minScale = 0.5f;
 
             //check if the sound detected is sharp or flat
+
+            //the sound is flat of the target musical note
             if (mSharpOrFlat.equals("flat")) {
                 mHowFlat.setScale((float) basicScaleValue);
                 mHowSharp.setScale(0);
@@ -460,32 +472,34 @@ public class TunerScreen implements Screen {
                 if (mOffsetInCents >= 1) {
                     mSharpOrFlatSymbol.setScale((float) (basicScaleValue * 0.5) + minScale);
                     mSharpOrFlatSymbol.setAlpha(1);
-                    mSharpOrFlatSymbol.setTexture((Texture) mTuner.mAssetManager.get("images/flat_symbol.png"));
+                    mSharpOrFlatSymbol.setTexture((Texture) mTuner.getAssetManager().get("images/flat_symbol.png"));
                     //change colour of the centre image if the cents are within a certain limit
                     if (mOffsetInCents <= acceptableInTuneLimit) {
-                        mHowSharpOrFlatCenter.setTexture((Texture) mTuner.mAssetManager
+                        mHowSharpOrFlatCenter.setTexture((Texture) mTuner.getAssetManager()
                                 .get("images/cents_sharp_or_flat_center_green.png"));
                     } else {
-                        mHowSharpOrFlatCenter.setTexture((Texture) mTuner.mAssetManager
+                        mHowSharpOrFlatCenter.setTexture((Texture) mTuner.getAssetManager()
                                 .get("images/cents_sharp_or_flat_center.png"));
                     }
                 } else if (mOffsetInCents == 0) {
                     mSharpOrFlatSymbol.setAlpha(0);
                 }
-            } else if (mSharpOrFlat.equals("sharp")) {
+            }
+            //the sound is sharp of the target musical note
+            else if (mSharpOrFlat.equals("sharp")) {
                 mHowSharp.setScale((float) basicScaleValue);
                 mHowFlat.setScale(0);
                 //display flat symbol if mOffsetInCents is >= 1
                 if (mOffsetInCents >= 1) {
                     mSharpOrFlatSymbol.setScale((float) (basicScaleValue * 0.5) + minScale);
                     mSharpOrFlatSymbol.setAlpha(1);
-                    mSharpOrFlatSymbol.setTexture((Texture) mTuner.mAssetManager.get("images/sharp_symbol.png"));
+                    mSharpOrFlatSymbol.setTexture((Texture) mTuner.getAssetManager().get("images/sharp_symbol.png"));
                     //change colour of the centre image if the cents are within a certain limit
                     if (mOffsetInCents <= acceptableInTuneLimit) {
-                        mHowSharpOrFlatCenter.setTexture((Texture) mTuner.mAssetManager
+                        mHowSharpOrFlatCenter.setTexture((Texture) mTuner.getAssetManager()
                                 .get("images/cents_sharp_or_flat_center_green.png"));
                     } else {
-                        mHowSharpOrFlatCenter.setTexture((Texture) mTuner.mAssetManager
+                        mHowSharpOrFlatCenter.setTexture((Texture) mTuner.getAssetManager()
                                 .get("images/cents_sharp_or_flat_center.png"));
                     }
                 } else if (mOffsetInCents == 0) {
@@ -499,12 +513,12 @@ public class TunerScreen implements Screen {
             mHowFlat.setScale(0);
             mHowSharpOrFlatText = "0";
             mSharpOrFlatSymbol.setAlpha(0);
-            mHowSharpOrFlatCenter.setTexture((Texture) mTuner.mAssetManager.get("images/cents_sharp_or_flat_center.png"));
+            mHowSharpOrFlatCenter.setTexture((Texture) mTuner.getAssetManager().get("images/cents_sharp_or_flat_center.png"));
         }
     }
 
     /**
-     * @param _num double. The number for which we return the base 2 logarithm
+     * @param _num          double. The number for which we return the base 2 logarithm
      * @return double.      The base 2 logarithm of a number
      */
     private double log2(double _num) {
@@ -519,6 +533,9 @@ public class TunerScreen implements Screen {
     public void resize(int _width, int _height) {
     }
 
+    /**
+     * Ensures that the tuner stops attempting to detect sound while this activity is not visible
+     */
     @Override
     public void pause() {
         if (mAudioDispatcher != null) {
@@ -527,6 +544,9 @@ public class TunerScreen implements Screen {
         }
     }
 
+    /**
+     * Starts the tuner running in its own thread if need be if needed
+     */
     @Override
     public void resume() {
         if (mAudioDispatcher == null) {
