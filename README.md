@@ -21,10 +21,16 @@ pitch. The FFT algorithm provided by Joren Six alongside the combination of the 
 of the user interface create an application which is efficient and easy to use whilst offering even the 
 most demanding classical musician with an extremely accurate tuner ideal for any professional situation.
 
+## Tuning Tolerance
+
 The tuner has a tolerance level which can be changed easily. By default, the tuner accepts any sound
 within 5 cents of the target pitch as being 'in tune'. To change this just change the value of the local
 variable 'acceptableInTuneLimit' in the method 'TunerScreen.updateHowFlatOrSharp()'.
 
 ## Usage
 
+Simply download this repository and run in Android Studio to install on an Android device. Upon
+running the application for the first time you will be asked to provide audio recording permissions.
+This is essential as nothing will work otherwise and you will not be able to get past the splash screen.
 
+The device must be equipped with at least SDK 23. 
