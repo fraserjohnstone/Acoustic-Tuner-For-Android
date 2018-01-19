@@ -4,9 +4,6 @@ import java.util.Random;
 
 /**
  * This class generates random Integers and floats, with or without including negative values.
- *
- * @author Fraser Johnstone
- * @version 1.01 - 22.04.2017
  */
 class RandomNum {
 

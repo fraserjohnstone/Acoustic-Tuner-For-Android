@@ -3,9 +3,6 @@ package com.fraserjohnstone.tuner.utils;
 /**
  * Each instance of this class represents one musical note by name. Each octave of this note name
  * has a frequency in Hertz. Each of these are stored in the array {@link #octaves}.
- *
- * @author Fraser Johnstone
- * @version 1.01 - 22.04.2017
  */
 public class Note {
     private double[] octaves = new double[9];

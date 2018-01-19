@@ -4,9 +4,6 @@ package com.fraserjohnstone.tuner.assets;
  * This class holds strings of the locations of any assets used throughout the application. These
  * are loaded by the {@link com.fraserjohnstone.tuner.Tuner} instance while the splash screen is
  * displayed.
- *
- * @author Fraser Johnstone
- * @version 1.01 - 22.04.2017
  */
 public class LoadableAssets {
     public static String[] assetArray = new String[]{

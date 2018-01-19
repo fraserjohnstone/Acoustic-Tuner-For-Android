@@ -27,9 +27,6 @@ import be.tarsos.dsp.pitch.PitchProcessor.PitchEstimationAlgorithm;
  * This class is the main {@link Screen} where the Tuner is displayed. The tuner algorithm will
  * run in its own thread and if there is sufficient sound detected, this class will attempt to
  * process the frequency of the sound detected and the user interface will be updated accordingly.
- *
- * @author Fraser Johnstone
- * @version 1.01 - 22.04.2017
  */
 public class TunerScreen implements Screen {
 
@@ -42,12 +39,12 @@ public class TunerScreen implements Screen {
 
     //chops up sound stream and feeds data to pitch
     private AudioDispatcher mAudioDispatcher;
-    //hertz value returned from the pitch detection
+    //hertz value returned from the pitch detection algorithm
     private double mCurrentHertz;
     //how far away the detected pitch is from the desired pitch - (uses 'cents = 1200 * log2(f2/f1)'
     //where f2 is always the higher pitch)
     private double mOffsetInCents;
-    //keeps track of whether the note is sharp of flat will be either 'flat' or 'sharp'
+    //keeps track of whether the note is sharp of flat. Will be either 'flat' or 'sharp'
     private String mSharpOrFlat;
     //the note currently being targeted by the Tuner (used for note wheel rotation)
     private String mTargetNote;
@@ -90,7 +87,7 @@ public class TunerScreen implements Screen {
     private Sprite mHowFlat;
     private Sprite mSharpOrFlatSymbol;
 
-    //update allowed flag - nothing in the application will update if this is false. will be set to
+    //update allowed flag - nothing in this activity will update if this is false. will be set to
     //true once the UI has been created.
     private boolean mUpdateAllowed = false;
 
@@ -135,7 +132,8 @@ public class TunerScreen implements Screen {
 
     /**
      * If mUpdateAllowed flag is true then the Hertz value returned from the tuner algorithm will be
-     * processed, and the UI will be updated accordingly. We also increment the value of mLoopCount.
+     * processed, and the UI will be updated accordingly. We also increment the value of mLoopCount
+     * here.
      *
      * @param _delta float. The time taken to render the previous frame.
      */

@@ -15,9 +15,6 @@ import com.fraserjohnstone.tuner.utils.ActionResolver;
  * and initialise the {@link SpriteBatch} and {@link AssetManager} used throughout, and then set
  * the screen to an instance of {@link com.fraserjohnstone.tuner.screens.SplashScreen} to be displayed
  * while the application assets load into {@link #mAssetManager}.
- *
- * @author Fraser Johnstone
- * @version 1.01 - 22.04.2017
  */
 public class Tuner extends Game {
 

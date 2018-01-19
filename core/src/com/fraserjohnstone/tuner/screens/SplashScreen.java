@@ -18,9 +18,6 @@ import com.fraserjohnstone.tuner.Tuner;
  * has finished loading and the user has granted the application appropriate runtime permissions.
  * The permissions will be requested in the resume() method and the member variable
  * {@link #mScreenChangeAllowed} will only be true once the user has granted permission.
- *
- * @author Fraser Johnstone
- * @version 1.01 - 22.04.2017
  */
 public class SplashScreen implements Screen {
 
@@ -126,7 +123,7 @@ public class SplashScreen implements Screen {
 
     @Override
     public void resume() {
-        //request the record audio permission
+        //attempt to request the record audio permission if required
         mTuner.getActionResolver().requestPermissions(this);
     }
 

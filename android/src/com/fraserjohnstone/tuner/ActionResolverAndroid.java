@@ -8,13 +8,10 @@ import com.fraserjohnstone.tuner.utils.ActionResolver;
 /**
  * This class which implements {@link ActionResolver} allows us to communicate with the Android
  * system from the libGDX framework.
- *
- * @version 1.01 - 22.04.2017
- * @author  Fraser Johnstone
  */
 public class ActionResolverAndroid implements ActionResolver {
-	private Handler uiThread;
-	private AndroidLauncher androidLauncher;
+	private Handler mUiThread;
+	private AndroidLauncher mAndroidLauncher;
 
 	/**
 	 * Class constructor
@@ -22,8 +19,8 @@ public class ActionResolverAndroid implements ActionResolver {
 	 * @param _androidLauncher {@link AndroidLauncher}
 	 */
 	ActionResolverAndroid(AndroidLauncher _androidLauncher) {
-    	uiThread = new Handler();
-		androidLauncher = _androidLauncher;
+    	mUiThread = new Handler();
+		mAndroidLauncher = _androidLauncher;
     }
 
     /**
@@ -33,10 +30,10 @@ public class ActionResolverAndroid implements ActionResolver {
      */
 	@Override
 	public void requestPermissions(final SplashScreen _splashScreen) {
-		uiThread.post(new Runnable(){
+		mUiThread.post(new Runnable(){
 			@Override
 			public void run() {
-				androidLauncher.requestPermissions(_splashScreen);
+				mAndroidLauncher.requestPermissions(_splashScreen);
 			}
 		});
 	}

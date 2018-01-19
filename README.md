@@ -17,21 +17,21 @@ determine the pitch of sampled audio.
 The application has a user interface which displays not only a note wheel which rotates to give the
 user a quick way of checking if they are in tune or not, but also a more detailed read out of the
 frequency of the detected audio as well as how many cents sharp or flat the audio is from a target
-pitch. The FFT algorithm provided by Joren Six alongside the combination of the different elements 
+pitch. The FFT algorithm provided by Joren alongside the combination of the different elements 
 of the user interface create an application which is efficient and easy to use whilst offering even the 
 most demanding classical musician with an extremely accurate tuner ideal for any professional situation.
 
 ## Tuning Tolerance
 
-The tuner has a tolerance level which can be changed easily. By default, the tuner accepts any sound
-within 5 cents of the target pitch as being 'in tune'. To change this just change the value of the local
+The tuner has a tolerance level which can be changed easily. By default, the tuner accepts any pitch
+within 5 cents of the target pitch as being 'in tune'. To change this simply change the value of the local
 variable 'acceptableInTuneLimit' in the method 'TunerScreen.updateHowFlatOrSharp()'.
 
 ## Usage
 
-Simply download this repository and run in Android Studio to install on an Android device. Upon
+Simply download this repository and run in Android Studio to install on a connected Android device. Upon
 running the application for the first time you will be asked to provide audio recording permissions.
 This is essential as the tuner will not work otherwise and you will not be able to get past the splash 
 screen.
 
-The device must be equipped with at least SDK 23. 
+The target device must be equipped with at least SDK 23. 

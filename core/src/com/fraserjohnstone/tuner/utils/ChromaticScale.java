@@ -2,9 +2,6 @@ package com.fraserjohnstone.tuner.utils;
 
 /**
  * Upon instantiation this class will hold a {@link Note} instance for each musical note name.
- *
- * @author Fraser Johnstone
- * @version 1.01 - 22.04.2017
  */
 public class ChromaticScale {
     //array to hold all of the notes
